@@ -1,0 +1,80 @@
+<?php
+
+namespace WebTorque\AdvancedLink;
+
+use SilverShop\HasOneField\GridFieldHasOneEditButton;
+use SilverShop\HasOneField\GridFieldHasOneUnlinkButton;
+use SilverShop\HasOneField\GridFieldSummaryField;
+use SilverShop\HasOneField\HasOneButtonField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\Requirements;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig;
+use SilverShop\HasOneField\GridFieldHasOneButtonRow;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
+
+/**
+ * Class HasOneButtonField
+ */
+class WTHasOneButtonField extends HasOneButtonField
+{
+
+    /**
+     * The related object to the parent
+     *
+     * @var DataObject
+     */
+    protected $record;
+
+    /**
+     * The current parent of the relationship (the base object we are editing)
+     *
+     * @var DataObject
+     */
+    protected $parent;
+
+    /**
+     * The name of the relation this field is managing
+     *
+     * @var string
+     */
+    protected $relation;
+
+    /**
+     * HasOneButtonField constructor.
+     * @param \SilverStripe\ORM\DataObject $parent
+     * @param string $relationName
+     * @param string|null $fieldName
+     * @param string|null $title
+     */
+    public function __construct(DataObject $parent, $relationName, $fieldName = null, $title = null, GridFieldConfig $customConfig = null)
+    {
+        $record = $parent->{$relationName}();
+        $this->setRecord($record);
+        $this->parent = $parent;
+        $this->relation = $relationName;
+
+        Requirements::css("silvershop/silverstripe-hasonefield:client/css/hasonefield.css");
+        Requirements::javascript("silvershop/silverstripe-hasonefield:client/js/hasonefield.js");
+
+        $config = GridFieldConfig::create()
+            ->addComponent(new WTGridFieldHasOneButtonRow($record))
+            ->addComponent(new GridFieldSummaryField($relationName))
+            ->addComponent(new GridFieldDetailForm())
+            ->addComponent(new GridFieldHasOneUnlinkButton($parent, 'buttons-before-right'))
+            ->addComponent(new GridFieldHasOneEditButton('buttons-before-right'));
+            //->addComponent(new HasOneAddExistingAutoCompleter('buttons-before-right'));
+
+        $list = HasOneButtonRelationList::create($parent, $this->record, $relationName);
+
+        // Limit the existing list so that autocomplete will find results
+        $list = $list->filter("ID", $this->record->ID);
+
+        // Get columns to display inline
+        $this->addExtraClass("d-flex align-items-start");
+
+        parent::__construct($fieldName ?: $relationName, $title, $list, ($customConfig) ?: $config);
+        $this->setModelClass($record->ClassName);
+    }
+}

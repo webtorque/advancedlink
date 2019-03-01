@@ -1,0 +1,30 @@
+{
+    "name": "webtorque/advancedlink",
+    "description": "Edit a has_one relationship using a GridField, triggered by clicking a button.",
+    "license": "BSD-2-Clause",
+    "type": "silverstripe-vendormodule",
+    "require": {
+        "silverstripe/framework": "^4.0",
+        "silvershop/silverstripe-hasonefield": "3.0.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    },
+    "authors": [{
+        "name": "Jeremy Shipman",
+        "email": "jeremy@burnbright.net"
+    }],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.x-dev"
+        },
+        "expose": [
+            "client"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "WebTorque\\AdvancedLink\\": "src/"
+        }
+    }
+}
