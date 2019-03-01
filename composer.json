@@ -11,13 +11,10 @@
         "phpunit/phpunit": "^5.7"
     },
     "authors": [{
-        "name": "Jeremy Shipman",
-        "email": "jeremy@burnbright.net"
+        "name": "Jenny",
+        "email": "jenny@webtorque.co.nz"
     }],
     "extra": {
-        "branch-alias": {
-            "dev-master": "3.x-dev"
-        },
         "expose": [
             "client"
         ]
