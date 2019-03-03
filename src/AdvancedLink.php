@@ -44,8 +44,8 @@ class AdvancedLink extends DataObject
 
     public function getCMSFields()
     {
-        Requirements::javascript('webtorque/advancedlink/js/AdvancedLink.js');
-
+        Requirements::javascript('webtorque/advancedlink:client/js/AdvancedLink.js');
+       
         $fields = parent::getCMSFields();
 
         $fields->addFieldsToTab('Root.Main', array(

@@ -1,0 +1,7 @@
+---
+Name: myproject
+---
+
+SilverStripe\Core\Injector\Injector:
+  SilverShop\HasOneField\HasOneButtonField:
+    class: WebTorque\AdvancedLink\WTHasOneButtonField
