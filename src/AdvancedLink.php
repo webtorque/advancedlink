@@ -22,7 +22,8 @@ class AdvancedLink extends DataObject
         'LinkType' => 'Enum("Internal,External,File,Phone,Email","Internal")',
         'Link' => 'Text',
         'TargetBlank' => 'Boolean',
-        'CTAText' => 'Varchar(100)'
+        'CTAText' => 'Varchar(100)',
+        'Parameter' => 'Varchar'
     ];
 
     private static $has_one = [
@@ -54,7 +55,8 @@ class AdvancedLink extends DataObject
             DropdownField::create('PageID', 'Page', SiteTree::get()->map('ID', 'Title')),
             OptionsetField::create('LinkType', 'Type', $this->dbObject('LinkType')->enumValues()),
             TextField::create('Link', 'External Link')->setDescription('If type is phone or email, the link will open with the default application for handling those. eg Skype or Outlook depending on the settings in your OS.'),
-            UploadField::create('File', 'File')
+            UploadField::create('File', 'File'),
+            TextField::create('Parameter','Extra Parameter')
         ));
 
         return $fields;
