@@ -9,6 +9,7 @@ use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\View\Requirements;
 
