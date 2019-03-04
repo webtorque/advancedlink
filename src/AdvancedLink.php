@@ -52,7 +52,8 @@ class AdvancedLink extends DataObject
         $fields->addFieldsToTab('Root.Main', array(
             TextField::create('CTAText', 'CTA Text'),
             CheckboxField::create('TargetBlank', 'Open in new tab?'),
-            DropdownField::create('PageID', 'Page', SiteTree::get()->map('ID', 'Title')),
+            /*DropdownField::create('PageID', 'Page', SiteTree::get()->map('ID', 'Title')),*/
+            TreeDropdownField ::create('PageID', 'Page', SiteTree::class),
             OptionsetField::create('LinkType', 'Type', $this->dbObject('LinkType')->enumValues()),
             TextField::create('Link', 'External Link')->setDescription('If type is phone or email, the link will open with the default application for handling those. eg Skype or Outlook depending on the settings in your OS.'),
             UploadField::create('File', 'File'),
