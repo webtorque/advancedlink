@@ -103,6 +103,9 @@ class AdvancedLink extends DataObject
             $newTab = false;
         }
 
+        if(!$newTab || $newTab == 0){
+            $newTab = false;
+        }
         return $newTab;
     }
 }
