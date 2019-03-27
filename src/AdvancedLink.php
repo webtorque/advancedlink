@@ -77,7 +77,7 @@ class AdvancedLink extends DataObject
             }
         } elseif ($this->Link != '') {
             if ($this->LinkType == 'External') {
-                $link = (strpos($this->Link, "http://") === false) ? 'http://' . $this->Link : $this->Link;
+                $link = (strpos($this->Link, "http://") === false && strpos($this->Link, "https://") === false) ? 'https://' . $this->Link : $this->Link;
             } elseif ($this->LinkType == 'Phone') {
                 $link = 'tel:' . $this->Link;
             } elseif ($this->LinkType == 'Email') {
