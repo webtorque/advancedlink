@@ -8,6 +8,7 @@ use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
@@ -20,8 +21,9 @@ class AdvancedLink extends DataObject
     private static $plural_name = 'Links';
 
     private static $db = [
-        'LinkType' => 'Enum("Internal,External,File,Phone,Email","Internal")',
+        'LinkType' => 'Enum("Internal,External,File,Phone,Email,Video","Internal")',
         'Link' => 'Text',
+        'VideoShareLink' => 'Text',
         'TargetBlank' => 'Boolean',
         'CTAText' => 'Varchar(100)',
         'Parameter' => 'Varchar'
@@ -47,7 +49,7 @@ class AdvancedLink extends DataObject
     public function getCMSFields()
     {
         Requirements::javascript('webtorque/advancedlink:client/js/AdvancedLink.js');
-       
+
         $fields = parent::getCMSFields();
 
         $fields->addFieldsToTab('Root.Main', array(
@@ -57,6 +59,7 @@ class AdvancedLink extends DataObject
             TreeDropdownField ::create('PageID', 'Page', SiteTree::class),
             OptionsetField::create('LinkType', 'Type', $this->dbObject('LinkType')->enumValues()),
             TextField::create('Link', 'External Link')->setDescription('If type is phone or email, the link will open with the default application for handling those. eg Skype or Outlook depending on the settings in your OS.'),
+            TextField::create('VideoShareLink', 'YouTube Share Link')->setDescription('Please paste in the youtube share link.'),
             UploadField::create('File', 'File'),
             TextField::create('Parameter','Extra Parameter')
         ));
@@ -107,5 +110,17 @@ class AdvancedLink extends DataObject
             $newTab = false;
         }
         return $newTab;
+    }
+
+    public function VideoID()
+    {
+        $url = parse_url($this->VideoShareLink);
+        if (isset($url['host']) && isset($url['path'])) {
+            $query = $url['path'];
+            if (substr($url['path'], 0, 1) === DIRECTORY_SEPARATOR) {
+                $query = substr($query, 1);
+            }
+            return $query;
+        }
     }
 }
