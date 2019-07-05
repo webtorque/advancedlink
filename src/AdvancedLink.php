@@ -5,10 +5,15 @@ namespace WebTorque\AdvancedLink;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\CMS\Model\SiteTree;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\OptionsetField;
-use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\Tab;
+use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\TreeDropdownField;
 use SilverStripe\ORM\DataObject;
@@ -21,12 +26,25 @@ class AdvancedLink extends DataObject
     private static $plural_name = 'Links';
 
     private static $db = [
-        'LinkType' => 'Enum("Internal,External,File,Phone,Email,Video","Internal")',
+        'LinkType' => 'Varchar',
         'Link' => 'Text',
-        'VideoShareLink' => 'Text',
         'TargetBlank' => 'Boolean',
         'CTAText' => 'Varchar(100)',
-        'Parameter' => 'Varchar'
+        'Parameter' => 'Varchar',
+        'PopUpID' => 'Varchar'
+    ];
+
+    private static $allowed_types = [
+        'Internal' => 'Internal',
+        'External' => 'External',
+        'File' => 'File',
+        'Phone' => 'Phone',
+        'Email' => 'Email',
+        'Popup' => 'Popup'
+    ];
+
+    private static $defaults = [
+        'LinkType' => 'Internal'
     ];
 
     private static $has_one = [
@@ -48,21 +66,43 @@ class AdvancedLink extends DataObject
 
     public function getCMSFields()
     {
-        Requirements::javascript('webtorque/advancedlink:client/js/AdvancedLink.js');
+        $fields = new FieldList(new TabSet("Root", $tabMain = new Tab('Main',
+            OptionsetField::create('LinkType', 'Type', Config::inst()->get(AdvancedLink::class, 'allowed_types')),
+            LiteralField::create('Tip', '<p class="message warning">Please save the link type to see options change.</p>')
+        )));
 
-        $fields = parent::getCMSFields();
+        if ($this->LinkType == 'Internal') {
+            $fields->addFieldsToTab('Root.Main', [
+                TreeDropdownField::create('PageID', 'Page', SiteTree::class),
+                TextField::create('Parameter', 'Extra Parameter'),
+                TextField::create('CTAText', 'CTA Text'),
+                CheckboxField::create('TargetBlank', 'Open in new tab?'),
+            ]);
+        } elseif ($this->LinkType == 'External') {
+            $fields->addFieldsToTab('Root.Main', [
+                TextField::create('Link', 'External Link'),
+                TextField::create('Parameter', 'Extra Parameter'),
+                TextField::create('CTAText', 'CTA Text'),
+                CheckboxField::create('TargetBlank', 'Open in new tab?'),
+            ]);
+        } elseif ($this->LinkType == 'File') {
+            $fields->addFieldsToTab('Root.Main', [
+                UploadField::create('File', 'File'),
+                TextField::create('CTAText', 'CTA Text'),
+            ]);
+        } elseif ($this->LinkType == 'Popup') {
+            $fields->addFieldsToTab('Root.Main', [
+                TextField::create('PopupID', 'Popup container ID'),
+                TextField::create('CTAText', 'CTA Text'),
+            ]);
+        } elseif ($this->LinkType == 'Email' || $this->LinkType == 'Phone') {
+            $fields->addFieldsToTab('Root.Main', [
+                TextField::create('Link', 'Phone or Email')->setDescription('The link will open with the default application for handling Email and Phone.'),
+                TextField::create('CTAText', 'CTA Text'),
+            ]);
+        }
 
-        $fields->addFieldsToTab('Root.Main', array(
-            TextField::create('CTAText', 'CTA Text'),
-            CheckboxField::create('TargetBlank', 'Open in new tab?'),
-            /*DropdownField::create('PageID', 'Page', SiteTree::get()->map('ID', 'Title')),*/
-            TreeDropdownField ::create('PageID', 'Page', SiteTree::class),
-            OptionsetField::create('LinkType', 'Type', $this->dbObject('LinkType')->enumValues()),
-            TextField::create('Link', 'External Link')->setDescription('If type is phone or email, the link will open with the default application for handling those. eg Skype or Outlook depending on the settings in your OS.'),
-            TextField::create('VideoShareLink', 'YouTube Share Link')->setDescription('Please paste in the youtube share link.'),
-            UploadField::create('File', 'File'),
-            TextField::create('Parameter','Extra Parameter')
-        ));
+        $this->extend('updateCMSFields', $fields);
 
         return $fields;
     }
@@ -92,6 +132,8 @@ class AdvancedLink extends DataObject
             }
         }
 
+        $this->extend('updateURL', $link);
+
         return $link;
     }
 
@@ -106,21 +148,12 @@ class AdvancedLink extends DataObject
             $newTab = false;
         }
 
-        if(!$newTab || $newTab == 0){
+        if (!$newTab || $newTab == 0) {
             $newTab = false;
         }
-        return $newTab;
-    }
 
-    public function VideoID()
-    {
-        $url = parse_url($this->VideoShareLink);
-        if (isset($url['host']) && isset($url['path'])) {
-            $query = $url['path'];
-            if (substr($url['path'], 0, 1) === DIRECTORY_SEPARATOR) {
-                $query = substr($query, 1);
-            }
-            return $query;
-        }
+        $this->extend('updateNewTab', $newTab);
+
+        return $newTab;
     }
 }
