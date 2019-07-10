@@ -15,9 +15,6 @@
         "email": "jenny@webtorque.co.nz"
     }],
     "extra": {
-        "expose": [
-            "client"
-        ]
     },
     "autoload": {
         "psr-4": {
